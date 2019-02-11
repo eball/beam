@@ -112,6 +112,7 @@ template<> void parse(const json& o, Login& m) {
 template<> void parse(const json& o, Job& m) {
     m.input = o[l_input];
     m.difficulty = o[l_difficulty];
+    m.height = o[l_height];
 }
 
 template<> void parse(const json& o, Solution& m) {
@@ -143,9 +144,10 @@ template <typename M> ResultCode parse_json_msg(const void* buf, size_t bufSize,
     return no_error;
 }
 
-Job::Job(const std::string& _id, const Merkle::Hash& _input, const Block::PoW& _pow) :
+Job::Job(const std::string& _id, const Merkle::Hash& _input, const Block::PoW& _pow, Height height) :
     Message(_id, job),
-    difficulty(_pow.m_Difficulty.m_Packed)
+    difficulty(_pow.m_Difficulty.m_Packed),
+    height(height)
 {
     char buf[72];
     input = to_hex(buf, _input.m_pData, 32);

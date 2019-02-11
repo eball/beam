@@ -27,6 +27,7 @@
 #include "common.h"
 #include "wallet_model.h"
 #include "node_model.h"
+#include "version.h"
 
 #define WALLET_FILENAME "wallet.db"
 #define BBS_FILENAME "keys.bbs"
@@ -78,6 +79,7 @@ namespace
         static auto logger = beam::Logger::create(LOG_LEVEL_DEBUG, LOG_LEVEL_DEBUG, LOG_LEVEL_DEBUG, "wallet_", (fs::path(appData) / fs::path("logs")).string());
 
         Rules::get().UpdateChecksum();
+        LOG_INFO() << "Beam Mobile Wallet " << PROJECT_VERSION << " (" << BRANCH_NAME << ")";
         LOG_INFO() << "Rules signature: " << Rules::get().Checksum;
     }
 }
@@ -300,6 +302,44 @@ JNIEXPORT void JNICALL BEAM_JAVA_WALLET_INTERFACE(saveAddress)(JNIEnv *env, jobj
     addr.m_OwnID = getLongField(env, WalletAddressClass, walletAddrObj, "own");
 
     walletModel->getAsync()->saveAddress(addr, own);
+}
+
+JNIEXPORT void JNICALL BEAM_JAVA_WALLET_INTERFACE(cancelTx)(JNIEnv *env, jobject thiz,
+    jstring txId)
+{
+    LOG_DEBUG() << "cancelTx()";
+
+    auto buffer = from_hex(JString(env, txId).value());
+    TxID id;
+
+    std::copy_n(buffer.begin(), id.size(), id.begin());
+    walletModel->getAsync()->cancelTx(id);
+}
+
+JNIEXPORT void JNICALL BEAM_JAVA_WALLET_INTERFACE(deleteTx)(JNIEnv *env, jobject thiz,
+    jstring txId)
+{
+    LOG_DEBUG() << "deleteTx()";
+
+    auto buffer = from_hex(JString(env, txId).value());
+    TxID id;
+
+    std::copy_n(buffer.begin(), id.size(), id.begin());
+    walletModel->getAsync()->deleteTx(id);
+}
+
+JNIEXPORT void JNICALL BEAM_JAVA_WALLET_INTERFACE(deleteAddress)(JNIEnv *env, jobject thiz,
+    jstring walletID)
+{
+    WalletID id(Zero);
+
+    if (!id.FromHex(JString(env, walletID).value()))
+    {
+        LOG_ERROR() << "Address is not valid!!!";
+
+        return;
+    }
+    walletModel->getAsync()->deleteAddress(id);
 }
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)

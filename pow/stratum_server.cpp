@@ -150,8 +150,7 @@ void Server::new_job(
 
     LOG_INFO() << STS << "new job " << id << " will be sent to " << _connections.size() << " connected peers";
 
-    Job jobMsg(id, input, pow);
-    jobMsg.height = height;
+    Job jobMsg(id, input, pow, height);
     append_json_msg(_fw, jobMsg);
 	_recentJob.msg.swap(_currentMsg);
     _currentMsg.clear();

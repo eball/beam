@@ -99,7 +99,7 @@ struct Job : Message {
 
     Job() = default;
 
-    Job(const std::string& _id, const Merkle::Hash& _input, const Block::PoW& _pow);
+    Job(const std::string& _id, const Merkle::Hash& _input, const Block::PoW& _pow, Height height);
 };
 
 /// Servers cancel job with given id
