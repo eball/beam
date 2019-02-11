@@ -27,7 +27,8 @@ namespace stratum {
     macro(2, job, Job) \
     macro(3, solution, Solution) \
     macro(4, result, Result) \
-    macro(5, cancel, Cancel)
+    macro(5, cancel, Cancel) \
+    macro(6, solutionresult, SolutionResult) 
 
 #define STRATUM_RESULTS(macro) \
     macro(0, no_error, "") \
@@ -138,6 +139,8 @@ struct Result : Message {
 struct SolutionResult : Result {
     std::string hash;
     Height height;
+    SolutionResult() = default;
+
     SolutionResult(std::string _id, ResultCode _code, std::string _hash, Height _height) :
         Result(_id, _code),
         hash(_hash),
