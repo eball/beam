@@ -24,6 +24,7 @@ private:
     struct Job {
         std::string jobID;
         Merkle::Hash input;
+        Height height;
         Block::PoW pow;
         BlockFound callback;
     };
@@ -45,6 +46,7 @@ private:
             _currentJob.jobID = jobID;
             _currentJob.input = input;
             _currentJob.pow = pow;
+            _currentJob.height = height;
             _currentJob.callback = callback;
             _changed = true;
         }
@@ -98,7 +100,9 @@ private:
 
         while (get_new_job(job)) {
             LOG_INFO() << "solving job id=" << job.jobID
-                       << " with nonce=" << job.pow.m_Nonce << " and difficulty=" << job.pow.m_Difficulty;
+                       << " with nonce=" << job.pow.m_Nonce 
+                       << " and difficulty=" << job.pow.m_Difficulty 
+                       << " and height=" << job.height;
 
             if ( (job.pow.*SolveFn) (job.input.m_pData, Merkle::Hash::nBytes, cancelFn)) {
                 {

@@ -141,10 +141,19 @@ private:
 
     void OnStateChanged() override {
         const auto& cursor = _nodeBackend.m_Cursor;
-        _cache.currentHeight = cursor.m_ID.m_Height;
+        _cache.currentHeight = cursor.m_Sid.m_Height;
         _cache.lowHorizon = cursor.m_LoHorizon;
         _statusDirty = true;
         if (_nextHook) _nextHook->OnStateChanged();
+    }
+
+    void OnRolledBack(const Block::SystemState::ID& id) override {
+
+        auto& blocks = _cache.blocks;
+
+        blocks.erase(blocks.lower_bound(id.m_Height), blocks.end());
+
+        if (_nextHook) _nextHook->OnRolledBack(id);
     }
 
     bool get_status(io::SerializedMsg& out) override {
@@ -301,6 +310,12 @@ private:
                 extract_row(height, row, prevRow);
             }
             return true;
+        }
+
+        if (_statusDirty) {
+            const auto &cursor = _nodeBackend.m_Cursor;
+            _cache.currentHeight = cursor.m_Sid.m_Height;
+            _cache.lowHorizon = cursor.m_LoHorizon;
         }
 
         io::SharedBuffer body;
