@@ -351,6 +351,7 @@ namespace beam
                 {"maturity", utxo.get_Maturity()},
                 {"createTxId", createTxId},
                 {"spentTxId", spentTxId},
+                {"status", utxo.m_status},                
                 //{"sessionId", utxo.m_sessionId},
             });
         }
