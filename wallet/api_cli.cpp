@@ -427,6 +427,18 @@ namespace beam
                     res.resultList = filteredList;
                 }
 
+                // filter transactions by height_after if provided
+                if (data.filter.heightAfter)
+                {
+                    decltype(res.resultList) filteredList;
+
+                    for (const auto& it : res.resultList)
+                        if (it.kernelProofHeight > *data.filter.heightAfter)
+                            filteredList.push_back(it);
+
+                    res.resultList = filteredList;
+                }
+
                 doResponse(id, res);
             }
         private:
