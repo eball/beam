@@ -275,6 +275,12 @@ namespace beam
             {
                 txList.filter.height = (Height)params["filter"]["height"];
             }
+
+            if (existsJsonParam(params["filter"], "height_after")
+                && params["filter"]["height_after"].is_number_unsigned())
+            {
+                txList.filter.heightAfter = (Height)params["filter"]["height_after"];
+            }
         }
 
         if (existsJsonParam(params, "count"))

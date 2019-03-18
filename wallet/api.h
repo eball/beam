@@ -159,6 +159,7 @@ namespace beam
         {
             boost::optional<TxStatus> status;
             boost::optional<Height> height;
+            boost::optional<Height> heightAfter;
         } filter;
 
         int count = 0;
