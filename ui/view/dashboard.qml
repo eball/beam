@@ -5,12 +5,12 @@ import QtQuick.Controls.Styles 1.2
 Rectangle {
 
     anchors.fill: parent
-    color: "#032e48"
+    color: Style.background_main
 
     Text {
         anchors.centerIn: parent
         font.pixelSize: 40
-        color: "#ffffff"
+        color: Style.content_main
         text: "Welcome to Beam Testnet"
     }
 }

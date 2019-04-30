@@ -22,7 +22,7 @@ ColumnLayout {
             Layout.minimumHeight: 40
             Layout.maximumHeight: 40
             font.pixelSize: 36
-            color: Style.white
+            color: Style.content_main
             text: qsTr("UTXO")
         }
 
@@ -46,7 +46,7 @@ ColumnLayout {
                     Layout.maximumHeight: 20
                     font.pixelSize: 18
                     font.styleName: "Bold"; font.weight: Font.Bold
-                    color: Style.white
+                    color: Style.content_main
                     text: qsTr("Blockchain Height")
                 }
 
@@ -54,7 +54,7 @@ ColumnLayout {
                     Layout.minimumHeight: 20
                     Layout.maximumHeight: 20
                     font.pixelSize: 16
-                    color: Style.bright_teal
+                    color: Style.active
                     text: viewModel.currentHeight
                 }
             }
@@ -85,7 +85,7 @@ ColumnLayout {
                     Layout.maximumHeight: 20
                     font.pixelSize: 18
                     font.styleName: "Bold"; font.weight: Font.Bold
-                    color: Style.white
+                    color: Style.content_main
                     text: qsTr("Last block hash")
                 }
 
@@ -94,7 +94,7 @@ ColumnLayout {
                     Layout.minimumHeight: 20
                     Layout.maximumHeight: 20
                     font.pixelSize: 16
-                    color: Style.bright_teal
+                    color: Style.active
                     text: viewModel.currentStateHash
                     elide: Text.ElideRight
                 }
@@ -166,7 +166,7 @@ ColumnLayout {
                 height: tableView.rowHeight
                 readonly property var lineSeparator: "\n"
                 property var texts: styleData.value.split(lineSeparator)
-                property color secondLineColor: "#879daa"
+                property color secondLineColor: Style.content_secondary
 
                 ColumnLayout {
                     anchors.right: parent.right
@@ -200,27 +200,27 @@ ColumnLayout {
 
                 function getTextColor(texts) {
                     if (texts[0] === "available") {
-                        return Style.bright_teal;
+                        return Style.active;
                     }
                     else if (texts[0] == "maturing") {
-                        return Style.heliotrope;
+                        return Style.accent_outgoing;
                     }
                     else if (texts[0] === "spent") {
-                        return Style.heliotrope;
+                        return Style.accent_outgoing;
                     }
                     else if (texts[0] === "unavailable") {
-                        return Style.white;
+                        return Style.content_main;
                     }
                     else if (texts[0] === "in progress") {
                         if (texts[1] === "(change)" || texts[1] === "(outgoing)") {
-                            return Style.heliotrope;
+                            return Style.accent_outgoing;
                         }
                         else {
-                            return Style.bright_sky_blue;
+                            return Style.accent_incoming;
                         }
                     }
                     else {
-                        return Style.white;
+                        return Style.content_main;
                     }
                 }
 
@@ -248,7 +248,7 @@ ColumnLayout {
             Rectangle {
                 anchors.fill: parent
 
-                color: Style.light_navy
+                color: Style.background_row_even
                 visible: styleData.alternate
             }
         }

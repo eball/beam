@@ -20,6 +20,9 @@ target_compile_definitions(pow PRIVATE ENABLE_MINING)
 
 add_dependencies(pow crypto)
 target_link_libraries(pow crypto)
+if(Boost_FOUND)
+    target_link_libraries(pow boost)
+endif()
 
 target_include_directories(pow PRIVATE ${PROJECT_SOURCE_DIR}/3rdparty/crypto)
 
@@ -32,8 +35,16 @@ add_library(external_pow STATIC
 add_dependencies(external_pow core p2p pow)
 target_link_libraries(external_pow p2p pow core)
 
-add_executable(miner_client miner_client.cpp ../core/block_crypt.cpp) # ???????????????????????????
-add_dependencies(miner_client external_pow)
-target_link_libraries(miner_client external_pow)
+if (NOT ANDROID)
+    add_executable(miner_client miner_client.cpp ../core/block_crypt.cpp) # ???????????????????????????
+    if (Boost_FOUND)
+        find_package(Boost COMPONENTS program_options)
+        add_dependencies(miner_client external_pow  Boost::program_options)
+        target_link_libraries(miner_client external_pow Boost::program_options)
+    else()
+        add_dependencies(miner_client external_pow boost_program_options)
+        target_link_libraries(miner_client external_pow boost_program_options)
+    endif()
 
-add_subdirectory(unittests)
+    add_subdirectory(unittests)
+endif()

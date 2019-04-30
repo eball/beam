@@ -32,6 +32,7 @@
 #include "viewmodel/settings_view.h"
 #include "viewmodel/messages_view.h"
 #include "viewmodel/statusbar_view.h"
+#include "viewmodel/theme.h"
 #include "model/app_model.h"
 
 #include "wallet/wallet_db.h"
@@ -40,7 +41,7 @@
 
 #include "translator.h"
 
-#include "utility/options.h"
+#include "utility/cli/options.h"
 
 #include <QtCore/QtPlugin>
 
@@ -95,7 +96,7 @@ int main (int argc, char* argv[])
 
     QApplication app(argc, argv);
 
-	app.setWindowIcon(QIcon(":/assets/icon.png"));
+	app.setWindowIcon(QIcon(Theme::iconPath()));
 
     QApplication::setApplicationName(AppName);
 
@@ -185,6 +186,13 @@ int main (int argc, char* argv[])
                 }
             }
 
+            qmlRegisterSingletonType<Theme>(
+                    "Beam.Wallet", 1, 0, "Theme",
+                    [](QQmlEngine* engine, QJSEngine* scriptEngine) -> QObject* {
+                        Q_UNUSED(engine)
+                        Q_UNUSED(scriptEngine)
+                        return new Theme;
+                    });
             qmlRegisterType<StartViewModel>("Beam.Wallet", 1, 0, "StartViewModel");
             qmlRegisterType<LoadingViewModel>("Beam.Wallet", 1, 0, "LoadingViewModel");
             qmlRegisterType<MainViewModel>("Beam.Wallet", 1, 0, "MainViewModel");
@@ -202,6 +210,7 @@ int main (int argc, char* argv[])
             qmlRegisterType<ContactItem>("Beam.Wallet", 1, 0, "ContactItem");
             qmlRegisterType<TxObject>("Beam.Wallet", 1, 0, "TxObject");
             qmlRegisterType<UtxoItem>("Beam.Wallet", 1, 0, "UtxoItem");
+            qmlRegisterType<PaymentInfoItem>("Beam.Wallet", 1, 0, "PaymentInfoItem");
             qmlRegisterType<WalletDBPathItem>("Beam.Wallet", 1, 0, "WalletDBPathItem");
 
             engine.load(QUrl("qrc:/root.qml"));

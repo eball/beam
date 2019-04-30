@@ -19,8 +19,8 @@
 #include "core/ecc_native.h"
 #include "core/ecc.h"
 #include "core/serialization_adapters.h"
+#include "utility/cli/options.h"
 #include "utility/log_rotation.h"
-#include "utility/options.h"
 #include "utility/helpers.h"
 #include <iomanip>
 
@@ -77,6 +77,22 @@ namespace
 		static const std::string apiKeysFileName("stratum.api.keys");
 		if (boost::filesystem::exists(p / apiKeysFileName))
 			o.apiKeysFile = (p / apiKeysFileName).string();
+	}
+
+	template<typename T>
+	void get_parametr_with_deprecated_synonym(const po::variables_map& vm, const char* name, const char* deprecatedName, T* result)
+	{
+		auto var = vm[name];
+		if (var.empty())
+		{
+			var = vm[deprecatedName];
+			if (!var.empty())
+				LOG_WARNING() << "The \"" << deprecatedName << "\"" << " parameter is deprecated, use " << "\"" << name << "\" instead.";
+		}
+
+		if (!var.empty()) {
+			*result = var.as<T>();
+		}
 	}
 }
 
@@ -211,17 +227,10 @@ int main_impl(int argc, char* argv[])
 					node.m_Cfg.m_LogUtxos = vm[cli::LOG_UTXOS].as<bool>();
 
 					std::string sKeyOwner;
-					{
-						const auto& var = vm[cli::KEY_OWNER];
-						if (!var.empty())
-							sKeyOwner = var.as<std::string>();
-					}
+					get_parametr_with_deprecated_synonym(vm, cli::OWNER_KEY, cli::KEY_OWNER, &sKeyOwner);
+
 					std::string sKeyMine;
-					{
-						const auto& var = vm[cli::KEY_MINE];
-						if (!var.empty())
-							sKeyMine = var.as<std::string>();
-					}
+					get_parametr_with_deprecated_synonym(vm, cli::MINER_KEY, cli::KEY_MINE, &sKeyMine);
 
 					if (!(sKeyOwner.empty() && sKeyMine.empty()))
 					{
@@ -283,9 +292,6 @@ int main_impl(int argc, char* argv[])
 						}
 					}
 
-					node.m_Cfg.m_HistoryCompression.m_sPathOutput = vm[cli::HISTORY].as<string>();
-					node.m_Cfg.m_HistoryCompression.m_sPathTmp = vm[cli::TEMP].as<string>();
-
 					LOG_INFO() << "starting a node on " << node.m_Cfg.m_Listen.port() << " port...";
 
 					if (vm.count(cli::TREASURY_BLOCK))
@@ -301,20 +307,24 @@ int main_impl(int argc, char* argv[])
 					}
 
 					if (vm.count(cli::RESYNC))
-						node.m_Cfg.m_Sync.m_ForceResync = vm[cli::RESYNC].as<bool>();
+						node.m_Cfg.m_ProcessorParams.m_ResetCursor = vm[cli::RESYNC].as<bool>();
 
-                    if (vm.count(cli::NO_FAST_SYNC))
-                    {
-                        node.m_Cfg.m_Sync.m_NoFastSync = true;
-                    }
+					if (vm.count(cli::CHECKDB))
+						node.m_Cfg.m_ProcessorParams.m_CheckIntegrityAndVacuum = vm[cli::CHECKDB].as<bool>();
+
+					if (vm.count(cli::RESET_ID))
+						node.m_Cfg.m_ProcessorParams.m_ResetSelfID = vm[cli::RESET_ID].as<bool>();
+
+					if (vm.count(cli::ERASE_ID))
+						node.m_Cfg.m_ProcessorParams.m_EraseSelfID = vm[cli::ERASE_ID].as<bool>();
 
 					node.m_Cfg.m_Bbs = vm[cli::BBS_ENABLE].as<bool>();
 
-					node.Initialize(stratumServer.get());
+					node.m_Cfg.m_Horizon.m_Branching = Rules::get().Macroblock.MaxRollback / 4; // inferior branches would be pruned when height difference is this.
+					node.m_Cfg.m_Horizon.m_SchwarzschildHi = vm[cli::HORIZON_HI].as<Height>();
+					node.m_Cfg.m_Horizon.m_SchwarzschildLo = vm[cli::HORIZON_LO].as<Height>();
 
-					Height hImport = vm[cli::IMPORT].as<Height>();
-					if (hImport)
-						node.ImportMacroblock(hImport);
+					node.Initialize(stratumServer.get());
 
 					io::Timer::Ptr pCrashTimer;
 
